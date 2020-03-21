@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 class STFT():
 
-    def __init__(self, sampling_rate = 16000, FFT_point = 256, window_length = 0.025, window_shift = 0.010):
+    def __init__(self, sampling_rate = 16000, FFT_point = 256, window = 'hamming', window_length = 0.025, window_shift = 0.010):
         #parameters
         self.sampling_rate = sampling_rate
         self.FFT_point = FFT_point
@@ -21,7 +21,9 @@ class STFT():
         self.waveform = None
         self.T_bin_num = 0
         #windows
-        self.hamming_window = np.hamming(self.window_point)
+        self.window = {'hamming': np.hamming(self.window_point),
+                       'hanning': np.hanning(self.window_point),
+                       'blackman': np.blackman(self.window_point)}[window]
         #spectrogram
         self.spectrogram = None
 
@@ -54,7 +56,7 @@ class STFT():
         for time_idx in range(self.T_bin_num):
             waveform_piece = self.waveform[time_idx * self.shift_point: self.window_point + time_idx * self.shift_point]
             #windowed signal
-            waveform_piece = waveform_piece * self.hamming_window
+            waveform_piece = waveform_piece * self.window
 
             for freq_idx in range(self.FFT_point // 2 + 1 if cut_half else self.FFT_point):
                 b = self.__basis(freq_idx)
